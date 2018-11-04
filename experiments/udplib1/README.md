@@ -1,2 +1,2 @@
-# A small embryo to handle packets between client server
+# First embryo of a socket library
 
