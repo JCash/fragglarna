@@ -19,7 +19,8 @@ typedef enum Protocol
 typedef enum SocketResult
 {
 	SOCKETRESULT_OK,
-	SOCKETRESULT_FAIL,
+	SOCKETRESULT_WOULD_BLOCK,
+    SOCKETRESULT_FAIL,
 } SocketResult;
 
 typedef struct Address
@@ -51,6 +52,12 @@ SocketResult SocketReceiveFrom(Socket socket, const void* buffer, int length, in
 SocketResult SocketSetSockoptBool(Socket socket, int level, int name, bool flag);
 
 SocketResult SocketSetBlocking(Socket socket, bool blocking);
+
+SocketResult SocketSleep(Socket socket, uint32_t milliseconds);
+
+int SockerError();
+const char* SockerErrorString();
+
 
 // Returns an malloc'ed string
 char* AddressToIPString(Address* address);

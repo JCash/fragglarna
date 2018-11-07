@@ -2,6 +2,7 @@
 #include "common.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>		// printf
 #include <string.h>		// memset
 #include <arpa/inet.h>
@@ -78,6 +79,17 @@ static inline uint32_t* IPv6(Address* address)
 {
     assert(address->family == FAMILY_IPV6);
     return &address->address[0];
+}
+
+int SockerError()
+{
+    return errno;
+}
+
+const char* SockerErrorString()
+{
+    int r = errno;
+    return strerror(r);
 }
 
 SocketResult SocketNew(Family family, Protocol protocol, Socket* s)
@@ -210,6 +222,21 @@ SocketResult SocketSetBlocking(Socket socket, bool blocking)
 
     int r = fcntl(socket, F_SETFL, flags);
     return r >= 0 ? SOCKETRESULT_OK : SOCKETRESULT_FAIL;
+}
+
+SocketResult SocketSleep(Socket socket, uint32_t milliseconds)
+{
+    fd_set fdset;
+    FD_ZERO(&fdset);
+    FD_SET(socket, &fdset);
+
+    struct timeval timeout;
+    timeout.tv_sec = milliseconds/1000;
+    timeout.tv_usec = (milliseconds%1000)*1000;   
+    int r = select(socket+1, &fdset, 0, 0, &timeout);
+    if (r < 0)
+        return SOCKETRESULT_FAIL;
+    return r == 0 ? SOCKETRESULT_WOULD_BLOCK : SOCKETRESULT_OK;
 }
 
 char* AddressToIPString(Address* address)
