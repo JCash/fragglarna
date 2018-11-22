@@ -6,7 +6,7 @@ mkdir -p $BUILDDIR
 
 set -e
 
-CFLAGS="-g -O0 -std=c99"
+CFLAGS="-g -O0 -g -fsanitize=address -fno-omit-frame-pointer -std=c99"
 
-clang -o $BUILDDIR/client $CFLAGS socket.c common.c client.c
-clang -o $BUILDDIR/server $CFLAGS socket.c common.c server.c
+clang -o $BUILDDIR/client $CFLAGS socket.c message.c common.c client.c
+clang -o $BUILDDIR/server $CFLAGS socket.c message.c common.c server.c

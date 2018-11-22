@@ -56,14 +56,41 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    for (int i=0; i<NPACK; i++)
+    r = SocketSetBlocking(s, false);
+    if (r != SOCKETRESULT_OK) {
+        Usage();
+        return 1;
+    }
+
+    char buf[BUFLEN];
+    *((uint32_t*)buf) = 0xFFFFFFFF;
+    const char* msg_connect = "connect";
+    sprintf(buf+4, "%s", msg_connect);
+
+    if (SocketSendTo(s, buf, strlen(buf), 0, &serverAddress, PORT) != SOCKETRESULT_OK)
     {
-        printf("Sending packet %d\n", i);
-        char buf[BUFLEN];
-        sprintf(buf, "This is packet %d\n", i);
-        if (SocketSendTo(s, buf, BUFLEN, 0, &serverAddress, PORT) != SOCKETRESULT_OK)
-        {
-          diep("sendto()");
+      diep("sendto('connect')");
+    }
+
+    // for (int i=0; i<NPACK; i++)
+    // {
+    //     printf("Sending packet %d\n", i);
+    //     char buf[BUFLEN];
+    //     *((uint32_t*)buf) = 0xFFFFFFFF;
+    //     sprintf(buf+4, "connect\nThis is packet %d", i);
+    //     if (SocketSendTo(s, buf, BUFLEN, 0, &serverAddress, PORT) != SOCKETRESULT_OK)
+    //     {
+    //       diep("sendto()");
+    //     }
+    // }
+
+    while (1)
+    {
+        int received_bytes = 0;
+        if (SocketReceive(s, buf, sizeof(buf), &received_bytes) == SOCKETRESULT_OK) {
+            buf[sizeof(buf)-1] = 0;
+
+            printf("%s\n", buf);
         }
     }
 

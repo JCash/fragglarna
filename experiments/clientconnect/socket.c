@@ -232,7 +232,7 @@ SocketResult SocketSleep(Socket socket, uint32_t milliseconds)
 
     struct timeval timeout;
     timeout.tv_sec = milliseconds/1000;
-    timeout.tv_usec = (milliseconds%1000)*1000;   
+    timeout.tv_usec = (milliseconds%1000)*1000;
     int r = select(socket+1, &fdset, 0, 0, &timeout);
     if (r < 0)
         return SOCKETRESULT_FAIL;
